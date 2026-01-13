@@ -1,0 +1,8 @@
+/data/
+*.pdf
+*.tex
+/tp_sol/
+*.yaml
+*.toml
+*.html
+*.iter
