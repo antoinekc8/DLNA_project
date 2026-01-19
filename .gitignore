@@ -6,3 +6,4 @@
 *.toml
 *.html
 *.iter
+__pycache__/
