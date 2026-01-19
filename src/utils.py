@@ -41,9 +41,8 @@ def load_parameters(file_path: Path):
 
 def load_and_pre_process_images(
     folder_path,
-    image_size=None,
-    resize_to=None,
-    crop_to=None,
+    resize_to=(160, 160),
+    crop_to=(128, 128),
     convert_non_jpg=True,
     standardize=False,
     allowed_exts=(".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"),
@@ -54,12 +53,8 @@ def load_and_pre_process_images(
 
     Args:
         folder_path (str | Path): path to the image folder
-        image_size (tuple[int, int] | None): desired final (width, height) size.
-            If specified, sets both resize_to and crop_to to this value. Defaults to None.
-        resize_to (tuple[int, int] | None): (width, height) to resize images before cropping.
-            If None and image_size is None, images are not resized. Defaults to None.
-        crop_to (tuple[int, int] | None): final (width, height) center-crop size.
-            If None and image_size is None, no cropping is applied. Defaults to None.
+        resize_to (tuple[int, int]): (width, height) to resize images before cropping
+        crop_to (tuple[int, int]): final (width, height) center-crop size
         convert_non_jpg (bool): if True, convert non-JPG files to JPG on disk (in-place). Defaults to True.
         standardize (bool): if True, standardize channels to zero mean / unit std (float32)
         allowed_exts (tuple[str, ...]): file extensions accepted for loading
@@ -67,10 +62,6 @@ def load_and_pre_process_images(
     Returns:
         list[tuple[np.ndarray, str]]: list of (image_bgr, filename)
     """
-    # Use image_size for both resize and crop if specified
-    if image_size is not None:
-        resize_to = image_size
-        crop_to = image_size
     folder_path = Path(folder_path)
     images = []
 
