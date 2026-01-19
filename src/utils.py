@@ -41,8 +41,9 @@ def load_parameters(file_path: Path):
 
 def load_and_pre_process_images(
     folder_path,
-    resize_to=(160, 160),
-    crop_to=(128, 128),
+    image_size=None,
+    resize_to=None,
+    crop_to=None,
     convert_non_jpg=True,
     standardize=False,
     allowed_exts=(".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"),
@@ -53,8 +54,12 @@ def load_and_pre_process_images(
 
     Args:
         folder_path (str | Path): path to the image folder
-        resize_to (tuple[int, int]): (width, height) to resize images before cropping
-        crop_to (tuple[int, int]): final (width, height) center-crop size
+        image_size (tuple[int, int] | None): desired final (width, height) size.
+            If specified, sets both resize_to and crop_to to this value. Defaults to None.
+        resize_to (tuple[int, int] | None): (width, height) to resize images before cropping.
+            If None and image_size is None, images are not resized. Defaults to None.
+        crop_to (tuple[int, int] | None): final (width, height) center-crop size.
+            If None and image_size is None, no cropping is applied. Defaults to None.
         convert_non_jpg (bool): if True, convert non-JPG files to JPG on disk (in-place). Defaults to True.
         standardize (bool): if True, standardize channels to zero mean / unit std (float32)
         allowed_exts (tuple[str, ...]): file extensions accepted for loading
@@ -62,6 +67,10 @@ def load_and_pre_process_images(
     Returns:
         list[tuple[np.ndarray, str]]: list of (image_bgr, filename)
     """
+    # Use image_size for both resize and crop if specified
+    if image_size is not None:
+        resize_to = image_size
+        crop_to = image_size
     folder_path = Path(folder_path)
     images = []
 
@@ -105,13 +114,15 @@ def load_and_pre_process_images(
             img = Image.open(file).convert("RGB")
             img_array = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
-            # Resize to target (OpenCV expects width, height)
-            r_w, r_h = resize_to
-            if (img_array.shape[1], img_array.shape[0]) != (r_w, r_h):
-                img_array = cv2.resize(img_array, (r_w, r_h), interpolation=cv2.INTER_AREA)
+            # Resize to target if specified (OpenCV expects width, height)
+            if resize_to is not None:
+                r_w, r_h = resize_to
+                if (img_array.shape[1], img_array.shape[0]) != (r_w, r_h):
+                    img_array = cv2.resize(img_array, (r_w, r_h), interpolation=cv2.INTER_AREA)
 
-            # Center-crop
-            img_array = _center_crop(img_array, crop_to)
+            # Center-crop if specified
+            if crop_to is not None:
+                img_array = _center_crop(img_array, crop_to)
 
             # Optional standardization (channel-wise)
             if standardize:
