@@ -1,0 +1,24 @@
+======================================================================
+COMPREHENSIVE MODEL COMPARISON REPORT
+======================================================================
+
+Models Evaluated:
+----------------------------------------------------------------------
+  - Transformer
+
+Performance Metrics:
+----------------------------------------------------------------------
+             accuracy  precision  recall  f1_score
+Transformer    0.9118     0.8708  0.9091    0.8826
+
+Best Performing Models:
+----------------------------------------------------------------------
+  Accuracy            : Transformer     (0.9118)
+  Precision           : Transformer     (0.8708)
+  Recall              : Transformer     (0.9091)
+  F1 Score            : Transformer     (0.8826)
+
+======================================================================
+
+RECOMMENDATION: Transformer shows the best overall accuracy.
+======================================================================
