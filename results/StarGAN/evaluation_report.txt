@@ -1,0 +1,35 @@
+
+========================================
+StarGAN Evaluation Report
+Test Set Performance Comparison
+========================================
+
+OVERALL METRICS
+================
+
+CNN Model:
+  Accuracy:  0.1722
+  Precision: 0.1205
+  Recall:    0.1722
+  F1-Score:  0.0547
+
+Transformer Model:
+  Accuracy:  0.2194
+  Precision: 0.2599
+  Recall:    0.2194
+  F1-Score:  0.0864
+
+BEST PERFORMING MODEL: Transformer
+Performance Gain: 0.0317 (3.17%)
+
+
+PER-CLASS ACCURACY
+===================
+
+Alluvial_Soil        | CNN: 0.0000 | Transformer: 0.0625
+Arid_Soil            | CNN: 0.0000 | Transformer: 0.0000
+Black_Soil           | CNN: 0.0000 | Transformer: 1.0000
+Laterite_Soil        | CNN: 0.0000 | Transformer: 0.0000
+Mountain_Soil        | CNN: 1.0000 | Transformer: 0.0164
+Red_Soil             | CNN: 0.0303 | Transformer: 0.0000
+Yellow_Soil          | CNN: 0.0000 | Transformer: 0.0000

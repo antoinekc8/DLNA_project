@@ -1,0 +1,32 @@
+{
+  "CNN": {
+    "Accuracy": 0.17222222222222222,
+    "Precision": 0.1205384854127871,
+    "Recall": 0.17222222222222222,
+    "F1-Score": 0.054729202739170445,
+    "Per-Class Accuracy": {
+      "Alluvial_Soil": 0.0,
+      "Arid_Soil": 0.0,
+      "Black_Soil": 0.0,
+      "Laterite_Soil": 0.0,
+      "Mountain_Soil": 1.0,
+      "Red_Soil": 0.030303030303030304,
+      "Yellow_Soil": 0.0
+    }
+  },
+  "Transformer": {
+    "Accuracy": 0.21944444444444444,
+    "Precision": 0.2598929236499069,
+    "Recall": 0.21944444444444444,
+    "F1-Score": 0.08641629164334132,
+    "Per-Class Accuracy": {
+      "Alluvial_Soil": 0.0625,
+      "Arid_Soil": 0.0,
+      "Black_Soil": 1.0,
+      "Laterite_Soil": 0.0,
+      "Mountain_Soil": 0.01639344262295082,
+      "Red_Soil": 0.0,
+      "Yellow_Soil": 0.0
+    }
+  }
+}

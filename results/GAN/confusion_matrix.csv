@@ -1,0 +1,8 @@
+,Alluvial_Soil,Arid_Soil,Black_Soil,Laterite_Soil,Mountain_Soil,Red_Soil,Yellow_Soil
+Alluvial_Soil,3,1,0,3,1,1,1
+Arid_Soil,2,45,4,2,3,0,1
+Black_Soil,0,2,49,0,0,0,0
+Laterite_Soil,0,4,3,34,1,2,0
+Mountain_Soil,1,5,3,2,28,1,0
+Red_Soil,0,0,1,5,0,16,0
+Yellow_Soil,0,1,0,3,0,0,10
