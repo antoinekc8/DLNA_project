@@ -6,8 +6,5 @@
 *.toml
 *.html
 *.iter
-<<<<<<< HEAD
 /models/
-=======
 __pycache__/
->>>>>>> 9aa3dcb937366cbe3194b123825b854a7844d3c7
