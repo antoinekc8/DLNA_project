@@ -68,8 +68,29 @@ def load_and_pre_process_images(
             new_w = int(w * ratio)
             new_h = int(h * ratio)
             
+
+
             # Redimensionnement proportionnel (sans distorsion)
             img_resized = cv2.resize(img_array, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+            # après img_resized
+            new_h, new_w = img_resized.shape[:2]
+
+            if new_h < target_size or new_w < target_size:
+                img_resized = cv2.resize(img_resized, (target_size, target_size), interpolation=cv2.INTER_AREA)
+                new_h, new_w = target_size, target_size
+
+            start_x = max(0, (new_w - target_size) // 2)
+            start_y = max(0, (new_h - target_size) // 2)
+
+            img_final = img_resized[start_y:start_y+target_size, start_x:start_x+target_size]
+
+            # sécurité : si le crop n’est pas exactement target_size x target_size
+            if img_final.shape[0] != target_size or img_final.shape[1] != target_size:
+                img_final = cv2.resize(img_final, (target_size, target_size), interpolation=cv2.INTER_AREA)
+
+
+
 
             # 3. DÉCOUPE CENTRALE (CROP)
             # On calcule les coordonnées pour couper exactement au milieu
