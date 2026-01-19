@@ -3,7 +3,6 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
-from pathlib import Path
 
 
 def load_parameters(file_path: Path):
@@ -40,19 +39,28 @@ def load_parameters(file_path: Path):
 
     return params
 
-def load_images(folder_path, resize_to=(160, 160), crop_to=(128, 128)):
+def load_and_pre_process_images(
+    folder_path,
+    resize_to=(160, 160),
+    crop_to=(128, 128),
+    convert_non_jpg=True,
+    standardize=False,
+    allowed_exts=(".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"),
+):
     """
-    Load all images from a folder and preprocess to a fixed size by:
-    1) resizing to `resize_to` (default 160x160), then
-    2) center-cropping to `crop_to` (default 128x128).
+    Load images from a folder, optionally convert non-JPG files, resize, center-crop,
+    and (optionally) standardize channels.
 
     Args:
         folder_path (str | Path): path to the image folder
-        resize_to (tuple[int, int]): (width, height) to resize images to before cropping. Defaults to (160, 160).
-        crop_to (tuple[int, int]): final (width, height) center-crop size. Defaults to (128, 128).
-    
+        resize_to (tuple[int, int]): (width, height) to resize images before cropping
+        crop_to (tuple[int, int]): final (width, height) center-crop size
+        convert_non_jpg (bool): if True, convert non-JPG files to JPG on disk (in-place). Defaults to True.
+        standardize (bool): if True, standardize channels to zero mean / unit std (float32)
+        allowed_exts (tuple[str, ...]): file extensions accepted for loading
+
     Returns:
-        list[tuple[np.ndarray, str]]: list of tuples (image_array_bgr, filename)
+        list[tuple[np.ndarray, str]]: list of (image_bgr, filename)
     """
     folder_path = Path(folder_path)
     images = []
@@ -61,27 +69,66 @@ def load_images(folder_path, resize_to=(160, 160), crop_to=(128, 128)):
         print(f"Folder does not exist: {folder_path}")
         return images
 
+    def _center_crop(img_arr, crop_size):
+        c_w, c_h = crop_size
+        start_x = max((img_arr.shape[1] - c_w) // 2, 0)
+        start_y = max((img_arr.shape[0] - c_h) // 2, 0)
+        end_x = start_x + c_w
+        end_y = start_y + c_h
+        return img_arr[start_y:end_y, start_x:end_x]
+
     for file in sorted(folder_path.iterdir()):
-        if file.suffix.lower() in {".jpg", ".jpeg"}:
-            try:
-                img = Image.open(file).convert("RGB")
-                img_array = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-                # Step 1: resize to resize_to (OpenCV expects (width, height))
-                r_w, r_h = resize_to
-                if (img_array.shape[1], img_array.shape[0]) != (r_w, r_h):
-                    img_array = cv2.resize(img_array, (r_w, r_h), interpolation=cv2.INTER_AREA)
+        if not file.is_file():
+            continue
 
-                # Step 2: center-crop to crop_to
-                c_w, c_h = crop_to
-                start_x = max((img_array.shape[1] - c_w) // 2, 0)
-                start_y = max((img_array.shape[0] - c_h) // 2, 0)
-                end_x = start_x + c_w
-                end_y = start_y + c_h
-                img_array = img_array[start_y:end_y, start_x:end_x]
-                name = file.name
-                images.append((img_array, name))
+        ext = file.suffix.lower()
+        if ext not in allowed_exts:
+            if convert_non_jpg:
+                try:
+                    img = Image.open(file)
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    new_filename = f"{file.stem}.jpg"
+                    new_filepath = file.with_name(new_filename)
+                    img.save(new_filepath, "JPEG", quality=95)
+                    if file != new_filepath:
+                        file.unlink()
+                    file = new_filepath
+                    ext = file.suffix.lower()
+                except Exception as e:
+                    print(f"Failed to convert {file.name}: {e}")
+                    continue
+            else:
+                continue
 
-            except Exception as e:
-                print(f"Failed to load {file.name}: {e}")
+        try:
+            img = Image.open(file).convert("RGB")
+            img_array = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+
+            # Resize to target (OpenCV expects width, height)
+            r_w, r_h = resize_to
+            if (img_array.shape[1], img_array.shape[0]) != (r_w, r_h):
+                img_array = cv2.resize(img_array, (r_w, r_h), interpolation=cv2.INTER_AREA)
+
+            # Center-crop
+            img_array = _center_crop(img_array, crop_to)
+
+            # Optional standardization (channel-wise)
+            if standardize:
+                img_std = np.zeros_like(img_array, dtype=np.float32)
+                for c in range(img_array.shape[2]):
+                    channel = img_array[:, :, c].astype(np.float32)
+                    mean = np.mean(channel)
+                    std = np.std(channel)
+                    if std > 0:
+                        img_std[:, :, c] = (channel - mean) / std
+                    else:
+                        img_std[:, :, c] = channel - mean
+                img_array = img_std
+
+            images.append((img_array, file.name))
+
+        except Exception as e:
+            print(f"Failed to load {file.name}: {e}")
 
     return images

@@ -1,59 +1,49 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
-def show_soil_grid(images_dict, n_per_type=5, tile_size=(240, 240), pad=12):
+def show_soil_grid(images_dict, n_per_type=1, tile_size=(240, 240), pad=12):
     """
-    Open a single OpenCV window showing one row per soil type and the first N images.
-    images_dict: {label: [(img_bgr, filename), ...], ...}
+    Display soil images in a single row (one image per soil type).
+    
+    Args:
+        images_dict: {label: [(img_bgr, filename), ...], ...}
+        n_per_type: index of image to display per type (default 1, shows first image)
+        tile_size: (width, height) of each image tile
+        pad: padding (kept for backward compatibility)
     """
     labels = list(images_dict.keys())
-    rows = len(labels)
-    cols = n_per_type
+    num_types = len(labels)
 
-    tw, th = tile_size  # width, height
-    header_h = 30       # height reserved for soil label
-
-    canvas_w = pad + cols * (tw + pad)
-    canvas_h = pad + rows * (th + header_h + pad)
-
-    canvas = np.full((canvas_h, canvas_w, 3), 255, dtype=np.uint8)
-
-    for r, label in enumerate(labels):
+    tw, th = tile_size  # width, height in pixels
+    
+    # Create figure with single row
+    fig_w = (num_types * tw / 100) + 2
+    fig_h = th / 100 + 1
+    
+    fig, axes = plt.subplots(1, num_types, figsize=(fig_w, fig_h), squeeze=False)
+    fig.suptitle('Sample Soil Images (One per Type)', fontsize=14, fontweight='bold')
+    
+    for col, label in enumerate(labels):
+        ax = axes[0, col]
         images = images_dict.get(label, [])
-
-        y_header = pad + r * (th + header_h + pad)
-        y0 = y_header + header_h
-
-        # soil type centered above the row
-        text_size, _ = cv2.getTextSize(
-            label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2
-        )
-        text_x = (canvas_w - text_size[0]) // 2
-        text_y = y_header + 22
-
-        cv2.putText(
-            canvas,
-            label,
-            (text_x, text_y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 0, 0),
-            2,
-            cv2.LINE_AA,
-        )
-
-        for c in range(cols):
-            x0 = pad + c * (tw + pad)
-            tile = np.full((th, tw, 3), 235, dtype=np.uint8)
-
-            if c < len(images):
-                img_bgr, _ = images[c]
-                if img_bgr is not None and img_bgr.size > 0:
-                    tile = cv2.resize(img_bgr, (tw, th), interpolation=cv2.INTER_AREA)
-
-            canvas[y0:y0 + th, x0:x0 + tw] = tile
-
-    cv2.namedWindow("Soil visualization", cv2.WINDOW_NORMAL)
-    cv2.imshow("Soil visualization", canvas)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        
+        if len(images) > 0:
+            img_bgr, filename = images[0]  # Take first image
+            if img_bgr is not None and img_bgr.size > 0:
+                # Convert BGR to RGB for matplotlib display
+                img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+                # Resize to tile_size for display
+                img_display = cv2.resize(img_rgb, tile_size, interpolation=cv2.INTER_AREA)
+                ax.imshow(img_display)
+            else:
+                ax.imshow(np.ones((th, tw, 3), dtype=np.uint8) * 235)
+        else:
+            # Empty tile (light gray)
+            ax.imshow(np.ones((th, tw, 3), dtype=np.uint8) * 235)
+        
+        ax.axis('off')
+        ax.set_title(label, fontsize=11, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.show()
