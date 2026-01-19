@@ -6,4 +6,5 @@
 *.toml
 *.html
 *.iter
+/models/
 __pycache__/
