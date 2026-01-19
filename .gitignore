@@ -8,4 +8,6 @@
 *.iter
 /models/
 __pycache__/
-/TP/
+/outputs/
+/tp/
+
