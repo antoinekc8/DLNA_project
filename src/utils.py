@@ -112,3 +112,63 @@ def load_and_pre_process_images(
             print(f"Erreur sur {file.name}: {e}")
 
     return images
+
+
+
+def inspect_architecture(model, model_name="Model"):
+    """Inspect and display architecture details"""
+    print(f"\n=== {model_name} Architecture Inspection ===")
+    print("=" * 50)
+    
+    total_params = 0
+    trainable_params = 0
+    
+    for i, (name, layer) in enumerate(model.named_modules()):
+        if len(list(layer.children())) == 0:  # Leaf module
+            params = sum(p.numel() for p in layer.parameters())
+            total_params += params
+            
+            if layer.parameters():
+                trainable_params += params
+                print(f"{i+1:2d}. {name:20s} | {type(layer).__name__:15s} | Params: {params:8d}")
+    
+    print("=" * 50)
+    print(f"Total Parameters: {total_params:,}")
+    print(f"Trainable Parameters: {trainable_params:,}")
+    print(f"Non-trainable Parameters: {total_params - trainable_params:,}")
+    return total_params
+
+
+def verify_class_distribution(train_loader, val_loader, test_loader, n_classes=10):
+    """
+    Print class distribution across train/val/test sets
+    
+    Args:
+        train_loader, val_loader, test_loader: DataLoaders to verify
+        n_classes: Number of classes (default 10)
+    """
+    train_class_counts = {i: 0 for i in range(n_classes)}
+    val_class_counts = {i: 0 for i in range(n_classes)}
+    test_class_counts = {i: 0 for i in range(n_classes)}
+    
+    # Count classes in each split
+    for _, label in train_loader.dataset:
+        train_class_counts[label] += 1
+    for _, label in val_loader.dataset:
+        val_class_counts[label] += 1
+    for _, label in test_loader.dataset:
+        test_class_counts[label] += 1
+    
+    # Print results
+    total_train = len(train_loader.dataset)
+    total_val = len(val_loader.dataset)
+    total_test = len(test_loader.dataset)
+    
+    print(f"Dataset sizes: Train={total_train}, Val={total_val}, Test={total_test}")
+    print(f"Total images: {total_train + total_val + total_test}")
+    
+    print("\nPer-class distribution:")
+    print("Class | Train | Val | Test")
+    print("------|-------|-----|-----")
+    for i in range(n_classes):
+        print(f"  {i}   |  {train_class_counts[i]:2d}   | {val_class_counts[i]:2d}  |  {test_class_counts[i]:2d}")
