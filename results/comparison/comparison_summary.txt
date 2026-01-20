@@ -1,24 +1,65 @@
-======================================================================
+================================================================================
 COMPREHENSIVE MODEL COMPARISON REPORT
-======================================================================
+================================================================================
 
 Models Evaluated:
-----------------------------------------------------------------------
+--------------------------------------------------------------------------------
+  - CNN (Baseline)
+  - CNN + cGAN
+  - CNN + StarGAN
   - Transformer
 
 Performance Metrics:
-----------------------------------------------------------------------
-             accuracy  precision  recall  f1_score
-Transformer    0.9118     0.8708  0.9091    0.8826
+--------------------------------------------------------------------------------
+                Accuracy  Precision    Recall  F1-Score
+Transformer     0.911800   0.870800  0.909100  0.882600
+CNN + cGAN      0.714286   0.775700  0.777300  0.772200
+CNN (Baseline)  0.714286   0.758282  0.743697  0.729815
+CNN + StarGAN   0.172222   0.120538  0.172222  0.054729
 
-Best Performing Models:
-----------------------------------------------------------------------
-  Accuracy            : Transformer     (0.9118)
-  Precision           : Transformer     (0.8708)
-  Recall              : Transformer     (0.9091)
-  F1 Score            : Transformer     (0.8826)
+Best Performing Models by Metric:
+--------------------------------------------------------------------------------
+  Accuracy       : Transformer          (0.9118)
+  Precision      : Transformer          (0.8708)
+  Recall         : Transformer          (0.9091)
+  F1-Score       : Transformer          (0.8826)
 
-======================================================================
+Improvement Analysis (vs CNN Baseline):
+--------------------------------------------------------------------------------
 
-RECOMMENDATION: Transformer shows the best overall accuracy.
-======================================================================
+Transformer:
+  Accuracy       : + 27.65%
+  Precision      : + 14.84%
+  Recall         : + 22.24%
+  F1-Score       : + 20.93%
+
+CNN + cGAN:
+  Accuracy       : +  0.00%
+  Precision      : +  2.30%
+  Recall         : +  4.52%
+  F1-Score       : +  5.81%
+
+CNN + StarGAN:
+  Accuracy       : -75.89%
+  Precision      : -84.10%
+  Recall         : -76.84%
+  F1-Score       : -92.50%
+
+================================================================================
+
+RECOMMENDATION:
+  Transformer shows the best overall accuracy (0.9118)
+  This model achieves the best score in 4/4 metrics.
+
+================================================================================
+
+KEY INSIGHTS:
+--------------------------------------------------------------------------------
+
+Data Augmentation Comparison:
+  - cGAN augmentation outperforms StarGAN (avg: 0.7599 vs 0.1299)
+
+Architecture Comparison:
+  - Transformer outperforms CNN baseline by 21.32% on average
+
+================================================================================
